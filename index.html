@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Sổ S2a-HKD – Nhóm 2</title>
+<style>
+/* ── RESET ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+/* ── VARS ── */
+:root {
+  --navy:#1a3255; --navy2:#122340; --navy-bg:#eef3fb;
+  --blue:#2563eb; --blue2:#1d4ed8; --blue-bg:#eff6ff;
+  --dark:#0f1e33; --text:#1e293b; --sub:#6b7280;
+  --bg:#f0f4fa; --white:#fff; --border:#dde4f0;
+  --green:#16a34a; --red:#dc2626; --orange:#d97706;
+  --amber:#f59e0b;
+  --radius:14px; --shadow:0 2px 14px rgba(0,0,0,.07);
+}
+
+body {
+  font-family: -apple-system,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg); color:var(--text);
+}
+
+/* ── WRAPPER ── */
+#app {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  display:flex; flex-direction:column; background:var(--bg);
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* ── HEADER ── */
+#hd {
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  color:#fff; padding:12px 16px 10px; flex-shrink:0;
+  z-index:20; box-shadow:0 2px 12px rgba(26,50,85,.5);
+}
+#hd h1 { font-size:13.5px; font-weight:800; }
+#hdSub { font-size:11px; opacity:.82; margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; }
+#hdKK { background:rgba(255,255,255,.2); border-radius:8px; padding:3px 10px; font-size:11px; font-weight:700; white-space:nowrap; }
+#hdMethod { background:rgba(37,99,235,.35); border-radius:6px; padding:2px 8px; font-size:10px; font-weight:700; margin-top:3px; display:inline-block; }
+.hd-row { display:flex; align-items:center; justify-content:space-between; }
+.hd-save { font-size:10px; opacity:.75; margin-top:4px; display:flex; align-items:center; gap:5px; }
+.save-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; flex-shrink:0; }
+.save-dot.saving { background:#fbbf24; animation:pulse .8s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── SCROLL ── */
+#scroll {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch; padding-bottom:80px;
+}
+
+/* ── BOTTOM NAV ── */
+#bnav {
+  flex-shrink:0; display:flex;
+  background:var(--white); border-top:1px solid var(--border);
+  box-shadow:0 -2px 14px rgba(0,0,0,.07);
+}
+.ni {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:8px 2px 6px; border:none;
+  background:none; font-family:inherit; font-size:9.5px;
+  color:var(--sub); cursor:pointer; gap:3px;
+  -webkit-appearance:none; min-height:56px;
+}
+.ni.on { color:var(--navy); font-weight:700; }
+.ni svg { width:21px; height:21px; stroke-width:1.8; fill:none; stroke:currentColor; }
+.ni.on svg { stroke-width:2.3; }
+
+/* ── FAB ── */
+#fab {
+  position:fixed;
+  bottom:calc(56px + env(safe-area-inset-bottom) + 14px); right:18px;
+  width:54px; height:54px; border-radius:50%;
+  background:var(--navy); color:#fff; border:none;
+  font-size:28px; cursor:pointer;
+  box-shadow:0 4px 20px rgba(26,50,85,.55);
+  display:flex; align-items:center; justify-content:center;
+  z-index:30; -webkit-appearance:none; line-height:1;
+}
+#fab:active { transform:scale(.93); }
+#fab.hide { display:none; }
+
+/* ── TABS ── */
+.tab { display:none; padding:14px 14px 0; }
+.tab.on { display:block; }
+
+/* ── PERIOD STRIP ── */
+.ps { display:flex; gap:7px; overflow-x:auto; padding:0 0 10px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.ps::-webkit-scrollbar { display:none; }
+.pc { padding:6px 15px; border-radius:20px; border:1.5px solid var(--border); background:var(--white); font-size:12px; cursor:pointer; white-space:nowrap; color:var(--sub); font-weight:600; flex-shrink:0; -webkit-appearance:none; }
+.pc.on { background:var(--navy); border-color:var(--navy); color:#fff; }
+
+/* ── SUM CARD ── */
+.sum { background:linear-gradient(135deg,var(--navy),var(--navy2)); color:#fff; border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; }
+.sum-row { display:flex; justify-content:space-between; align-items:flex-start; }
+.sum-num { font-size:20px; font-weight:800; letter-spacing:-.5px; }
+.sum-lbl { font-size:10.5px; opacity:.82; margin-bottom:2px; }
+.sum-cnt { font-size:10.5px; opacity:.68; margin-top:2px; }
+.sum-icon { font-size:34px; opacity:.4; }
+
+/* Tax badge inside sum */
+.tax-mini { background:rgba(255,255,255,.15); border-radius:10px; padding:8px 12px; margin-top:8px; display:flex; gap:12px; flex-wrap:wrap; }
+.tax-mini-item { font-size:11px; }
+.tax-mini-lbl { opacity:.75; }
+.tax-mini-val { font-weight:800; }
+
+/* ── SEC ── */
+.sec { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.sec-t { font-size:13px; font-weight:700; }
+.bdg { background:var(--navy-bg); color:var(--navy); font-size:11px; font-weight:800; padding:2px 9px; border-radius:10px; }
+
+/* ── ENTRY CARD ── */
+.ec { background:var(--white); border-radius:12px; padding:11px 12px; margin-bottom:7px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); border-left:3px solid transparent; }
+.ec:active { border-left-color:var(--navy); }
+.ec.cost-card { border-left:3px solid transparent; }
+.ec.cost-card:active { border-left-color:var(--orange); }
+.db { background:var(--navy-bg); color:var(--navy); border-radius:8px; padding:6px 7px; text-align:center; min-width:40px; font-weight:800; font-size:16px; line-height:1; flex-shrink:0; }
+.db.cost { background:#fff7ed; color:var(--orange); }
+.db .dm { font-size:10px; font-weight:600; color:var(--sub); margin-top:1px; }
+.ei { flex:1; min-width:0; }
+.edesc { font-size:13px; font-weight:600; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.eamt { font-size:13px; font-weight:800; color:var(--green); margin-top:2px; }
+.eamt.cost { color:var(--orange); }
+.ea { display:flex; gap:4px; flex-shrink:0; }
+.ib { width:32px; height:32px; border-radius:8px; border:none; background:var(--bg); cursor:pointer; font-size:14px; -webkit-appearance:none; display:flex; align-items:center; justify-content:center; }
+
+/* ── EMPTY ── */
+.mt { text-align:center; padding:50px 20px; color:var(--sub); }
+.mt-i { font-size:56px; margin-bottom:12px; opacity:.35; }
+
+/* ── CARD ── */
+.card { background:var(--white); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:var(--shadow); }
+.card-t { font-size:11px; font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.6px; margin-bottom:14px; }
+
+/* ── TAX CALC CARD ── */
+.tax-calc { background:linear-gradient(135deg,#1e3a5f,#2563eb); color:#fff; border-radius:var(--radius); padding:14px 16px; margin-bottom:12px; }
+.tax-calc h2 { font-size:14px; font-weight:800; margin-bottom:3px; }
+.tax-calc p { font-size:10.5px; opacity:.82; }
+.tax-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.15); }
+.tax-row:last-child { border-bottom:none; }
+.tax-row-lbl { font-size:12px; opacity:.85; }
+.tax-row-val { font-size:13px; font-weight:800; }
+.tax-total { background:rgba(255,255,255,.15); border-radius:10px; padding:10px 12px; margin-top:10px; }
+.tax-total-lbl { font-size:11px; opacity:.8; }
+.tax-total-val { font-size:20px; font-weight:800; margin-top:2px; }
+
+/* ── METHOD BADGE ── */
+.method-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:11.5px; font-weight:700; margin-bottom:12px; }
+.method-badge.pct { background:var(--blue-bg); color:var(--blue); }
+.method-badge.profit { background:#fef3c7; color:#92400e; }
+
+/* ── FORM ── */
+.fg { margin-bottom:13px; }
+.fl { display:block; font-size:11px; font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+.fi {
+  width:100%; padding:12px 13px;
+  border:1.5px solid var(--border); border-radius:10px;
+  font-size:16px; color:var(--text); background:var(--white);
+  -webkit-appearance:none; font-family:inherit; outline:none;
+}
+.fi:focus { border-color:var(--navy); }
+.fi::placeholder { color:#c4c9d4; }
+select.fi { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7280' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+.amt-preview { font-size:13px; color:var(--green); font-weight:700; margin-top:5px; min-height:18px; }
+.amt-preview.cost { color:var(--orange); }
+
+/* ── BUTTONS ── */
+.btn { width:100%; padding:13px; border:none; border-radius:11px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px; -webkit-appearance:none; display:block; }
+.btn-n { background:var(--navy); color:#fff; }
+.btn-b { background:#1e3a5f; color:#fff; }
+.btn-o { background:#fff7ed; color:var(--orange); border:1.5px solid #fed7aa; margin-top:6px; }
+.btn-g { background:var(--bg); color:var(--text); }
+.btn-danger { background:#fef2f2; color:var(--red); margin-top:8px; }
+
+/* ── METHOD TOGGLE ── */
+.method-toggle { display:flex; background:var(--bg); border-radius:12px; padding:3px; margin-bottom:14px; }
+.method-opt { flex:1; padding:9px 6px; border-radius:10px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--sub); transition:all .2s; border:none; background:none; font-family:inherit; -webkit-appearance:none; }
+.method-opt.on { background:var(--white); color:var(--navy); font-weight:800; box-shadow:0 1px 6px rgba(0,0,0,.1); }
+
+/* ── TAX SCHEDULE ── */
+.tax-hd { background:linear-gradient(135deg,#1e3a5f,#2563eb); color:#fff; border-radius:var(--radius); padding:14px; margin-bottom:12px; }
+.tax-hd h2 { font-size:14px; font-weight:800; margin-bottom:3px; }
+.tax-hd p { font-size:10.5px; opacity:.82; }
+.dl-card { background:var(--white); border-radius:12px; padding:12px 14px; margin-bottom:8px; display:flex; gap:11px; align-items:flex-start; box-shadow:var(--shadow); }
+.dl-card.urgent { border-left:4px solid #dc2626; }
+.dl-card.warning { border-left:4px solid #f59e0b; }
+.dl-card.ok { border-left:4px solid #16a34a; }
+.dl-card.info { border-left:4px solid #2563eb; }
+.dl-d { border-radius:8px; padding:7px 9px; text-align:center; min-width:50px; flex-shrink:0; }
+.dl-d.urgent { background:#fef2f2; color:#dc2626; }
+.dl-d.warning { background:#fff7ed; color:#c2410c; }
+.dl-d.ok { background:#f0fdf4; color:#16a34a; }
+.dl-d.info { background:var(--blue-bg); color:var(--blue); }
+.dl-day { font-size:22px; font-weight:800; line-height:1; }
+.dl-mon { font-size:10px; font-weight:600; margin-top:1px; }
+.dl-body h4 { font-size:13px; font-weight:700; margin-bottom:3px; }
+.dl-body p { font-size:11.5px; color:var(--sub); line-height:1.5; }
+.dl-bdg { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; margin-top:5px; }
+.dl-bdg.urgent { background:#fef2f2; color:#dc2626; }
+.dl-bdg.warning { background:#fff7ed; color:#c2410c; }
+.dl-bdg.ok { background:#f0fdf4; color:#16a34a; }
+.dl-bdg.info { background:var(--blue-bg); color:var(--blue); }
+.fm-item { padding:11px 0; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:flex-start; }
+.fm-item:last-child { border-bottom:none; padding-bottom:0; }
+.fm-num { background:var(--navy); color:#fff; border-radius:6px; padding:4px 8px; font-size:10px; font-weight:800; flex-shrink:0; white-space:nowrap; }
+.fm-dt h4 { font-size:12.5px; font-weight:700; margin-bottom:2px; }
+.fm-dt p { font-size:11px; color:var(--sub); line-height:1.4; }
+.notif-box { background:#f8fafc; border-radius:10px; padding:13px; margin:10px 0; font-size:12px; line-height:1.65; color:#374151; border:1px solid var(--border); white-space:pre-wrap; word-break:break-word; }
+.mrow { display:flex; gap:8px; margin-bottom:12px; }
+.mrow select { flex:1; }
+.mrow button { padding:10px 14px; background:var(--navy); color:#fff; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-family:inherit; flex-shrink:0; -webkit-appearance:none; }
+
+/* ── SUPPORT ── */
+.sup-card { background:var(--white); border-radius:var(--radius); padding:20px; margin-bottom:12px; text-align:center; box-shadow:var(--shadow); }
+.qr-img { width:190px; height:190px; border-radius:12px; margin:0 auto 12px; display:block; object-fit:cover; border:2px solid var(--border); }
+.zalo-n { font-size:22px; font-weight:800; color:var(--blue); letter-spacing:1px; margin-top:4px; }
+.zalo-l { font-size:11px; color:var(--sub); margin-top:3px; }
+
+/* ── IMPORT ── */
+.import-zone { border:2px dashed var(--border); border-radius:11px; padding:18px; text-align:center; color:var(--sub); font-size:13px; cursor:pointer; margin-bottom:10px; -webkit-appearance:none; }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; top:80px; left:50%;
+  transform:translateX(-50%) translateY(-8px);
+  background:#0f1e33; color:#fff;
+  padding:9px 20px; border-radius:20px;
+  font-size:13px; z-index:999;
+  white-space:nowrap; opacity:0;
+  transition:opacity .22s, transform .22s;
+  pointer-events:none;
+}
+.toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── INFO PILLS ── */
+.info-pills { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.pill { padding:4px 10px; border-radius:14px; font-size:11px; font-weight:700; }
+.pill-blue { background:var(--blue-bg); color:var(--blue); }
+.pill-green { background:#f0fdf4; color:#16a34a; }
+.pill-amber { background:#fef3c7; color:#92400e; }
+
+/* ── RATE GRID ── */
+.rate-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.rate-box { background:var(--bg); border-radius:10px; padding:10px 12px; }
+.rate-lbl { font-size:10.5px; color:var(--sub); font-weight:600; margin-bottom:4px; }
+.rate-val { font-size:15px; font-weight:800; color:var(--navy); }
+
+/* ── SP ── */
+.sp { height:20px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div id="hd">
+    <div class="hd-row">
+      <div style="flex:1;min-width:0">
+        <h1>📒 SỔ S2a-HKD – NHÓM 2</h1>
+        <div id="hdSub">Hộ kinh doanh / Doanh thu 1–3 tỷ/năm</div>
+      </div>
+      <div id="hdKK" style="margin-left:8px">—</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px">
+      <div class="hd-save">
+        <span class="save-dot" id="saveDot"></span>
+        <span id="saveStatus">Chưa có dữ liệu</span>
+      </div>
+      <span id="hdMethod" class="method"></span>
+    </div>
+  </div>
+
+  <!-- SCROLL -->
+  <div id="scroll">
+
+    <!-- TAB: DOANH THU -->
+    <div class="tab on" id="tab-rev">
+      <div class="ps" id="periodStrip"></div>
+      <div class="sum">
+        <div class="sum-row">
+          <div>
+            <div class="sum-lbl">Tổng doanh thu</div>
+            <div class="sum-num" id="sumTotal">0 ₫</div>
+            <div class="sum-cnt" id="sumCount">0 giao dịch</div>
+          </div>
+          <div class="sum-icon">💰</div>
+        </div>
+        <div class="tax-mini" id="taxMini">
+          <div class="tax-mini-item"><div class="tax-mini-lbl">GTGT</div><div class="tax-mini-val" id="miniGtgt">—</div></div>
+          <div class="tax-mini-item"><div class="tax-mini-lbl">TNCN</div><div class="tax-mini-val" id="miniTncn">—</div></div>
+          <div class="tax-mini-item"><div class="tax-mini-lbl">Tổng thuế</div><div class="tax-mini-val" id="miniTotal">—</div></div>
+        </div>
+      </div>
+      <div class="sec">
+        <span class="sec-t">Giao dịch trong quý</span>
+        <span class="bdg" id="listBdg">0</span>
+      </div>
+      <div id="entryList"></div>
+      <div class="sp"></div>
+    </div>
+
+    <!-- TAB: CHI PHÍ -->
+    <div class="tab" id="tab-cost">
+      <div class="ps" id="costPeriodStrip"></div>
+      <div class="sum" style="background:linear-gradient(135deg,#92400e,#d97706)">
+        <div class="sum-row">
+          <div>
+            <div class="sum-lbl">Tổng chi phí</div>
+            <div class="sum-num" id="costTotal">0 ₫</div>
+            <div class="sum-cnt" id="costCount">0 khoản</div>
+          </div>
+          <div class="sum-icon">📋</div>
+        </div>
+        <div class="tax-mini" style="background:rgba(255,255,255,.15)">
+          <div class="tax-mini-item"><div class="tax-mini-lbl">Lợi nhuận</div><div class="tax-mini-val" id="miniProfit">—</div></div>
+          <div class="tax-mini-item"><div class="tax-mini-lbl">TNCN 15%</div><div class="tax-mini-val" id="miniTncnProfit">—</div></div>
+        </div>
+      </div>
+      <div id="methodNote" class="card" style="text-align:center;padding:12px 14px;display:none">
+        <p style="font-size:12px;color:var(--sub)">⚠️ Tab Chi phí chỉ dùng khi chọn <strong>Phương pháp 2 (theo lợi nhuận)</strong>.<br>Vào <strong>Cài đặt</strong> để chọn phương pháp.</p>
+      </div>
+      <div class="sec" id="costSec">
+        <span class="sec-t">Chi phí trong quý</span>
+        <span class="bdg" id="costBdg">0</span>
+      </div>
+      <div id="costList"></div>
+      <div class="sp"></div>
+    </div>
+
+    <!-- TAB: LỊCH THUẾ -->
+    <div class="tab" id="tab-tax">
+      <div class="tax-hd">
+        <h2>📅 Lịch kê khai thuế – Theo quý</h2>
+        <p id="taxMethodLbl">Kê khai theo quý – hạn trước ngày 30 tháng sau quý</p>
+      </div>
+
+      <!-- Tax calculation summary -->
+      <div class="tax-calc" id="taxCalcCard">
+        <h2>🧮 Tính thuế <span id="taxQuarterLbl">—</span></h2>
+        <p id="taxCalcSub" style="margin-bottom:10px">Dựa trên phương pháp đã cài đặt</p>
+        <div class="tax-row">
+          <span class="tax-row-lbl">Doanh thu</span>
+          <span class="tax-row-val" id="calcRevenue">0 ₫</span>
+        </div>
+        <div class="tax-row" id="calcCostRow" style="display:none">
+          <span class="tax-row-lbl">Chi phí</span>
+          <span class="tax-row-val" id="calcCost">0 ₫</span>
+        </div>
+        <div class="tax-row" id="calcProfitRow" style="display:none">
+          <span class="tax-row-lbl">Lợi nhuận</span>
+          <span class="tax-row-val" id="calcProfit">0 ₫</span>
+        </div>
+        <div class="tax-row">
+          <span class="tax-row-lbl" id="calcGtgtLbl">GTGT (3%)</span>
+          <span class="tax-row-val" id="calcGtgt">0 ₫</span>
+        </div>
+        <div class="tax-row">
+          <span class="tax-row-lbl" id="calcTncnLbl">TNCN (1.5%)</span>
+          <span class="tax-row-val" id="calcTncn">0 ₫</span>
+        </div>
+        <div class="tax-total">
+          <div class="tax-total-lbl">Tổng số thuế phải nộp</div>
+          <div class="tax-total-val" id="calcTotalTax">0 ₫</div>
+        </div>
+      </div>
+
+      <div class="mrow">
+        <select class="fi" id="taxQuarterSel"></select>
+        <button onclick="renderTax()">🔄</button>
+      </div>
+      <div id="taxDeadlines"></div>
+
+      <div class="card">
+        <div class="card-t">📋 Mẫu kê khai gợi ý</div>
+        <div class="fm-item">
+          <div class="fm-num">01/CNKD</div>
+          <div class="fm-dt"><h4>Tờ khai thuế GTGT &amp; TNCN</h4><p>Kê khai doanh thu và thuế GTGT+TNCN theo quý. Căn cứ NĐ 68/2026/NĐ-CP &amp; TT 18/2026/TT-BTC.</p></div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-num">01-1/CNKD</div>
+          <div class="fm-dt"><h4>Phụ lục bảng kê doanh thu</h4><p>Chi tiết doanh thu theo từng loại hàng hóa/dịch vụ. Kèm theo khi có nhiều nhóm.</p></div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-num">S2a-HKD</div>
+          <div class="fm-dt"><h4>Sổ doanh thu hằng ngày (trung bình)</h4><p>Ghi chép hằng ngày – ứng dụng này. Là cơ sở lập tờ khai 01/CNKD cuối quý.</p></div>
+        </div>
+        <div class="fm-item" id="profitFmItem" style="display:none">
+          <div class="fm-num">S2b–S3a</div>
+          <div class="fm-dt"><h4>Sổ kế toán khi kê khai theo lợi nhuận</h4><p>S2b, S2c, S2d, S2e, S3a – cần khi dùng phương pháp tính thuế theo lợi nhuận.</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-t">🔔 Tạo thông báo nhắc thuế</div>
+        <p style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.55">Tạo nội dung nhắc nộp thuế để gửi qua Zalo / tin nhắn</p>
+        <div class="notif-box" id="notifBox" style="display:none"></div>
+        <button class="btn btn-n" onclick="genNotif()">🔔 Tạo thông báo</button>
+        <button class="btn btn-g" id="copyBtn" style="display:none" onclick="copyNotif()">📋 Sao chép thông báo</button>
+      </div>
+      <div class="sp"></div>
+    </div>
+
+    <!-- TAB: XUẤT FILE -->
+    <div class="tab" id="tab-exp">
+      <div class="card" style="text-align:center">
+        <div style="font-size:42px;margin-bottom:8px">🖨️</div>
+        <div style="font-size:15px;font-weight:800;margin-bottom:5px">In trực tiếp</div>
+        <p style="font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.5">Mở trang in mẫu S2a-HKD chuẩn A4</p>
+        <div class="fg"><label class="fl">Chọn quý</label><select class="fi" id="selPrint"></select></div>
+        <button class="btn btn-n" onclick="doPrint()">🖨️ Mở trang in</button>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:42px;margin-bottom:8px">📄</div>
+        <div style="font-size:15px;font-weight:800;margin-bottom:5px">Tải file Word (.doc)</div>
+        <p style="font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.5">Xuất file Word theo mẫu S2a-HKD</p>
+        <div class="fg"><label class="fl">Chọn quý</label><select class="fi" id="selWord"></select></div>
+        <button class="btn btn-b" onclick="doWord()">⬇️ Tải file Word</button>
+      </div>
+      <div class="sp"></div>
+    </div>
+
+    <!-- TAB: CÀI ĐẶT -->
+    <div class="tab" id="tab-cfg">
+      <div class="card">
+        <div class="card-t">🏢 Thông tin hộ kinh doanh</div>
+        <div class="fg"><label class="fl">Tên hộ / cá nhân kinh doanh</label><input class="fi" id="cfgName" type="text" placeholder="Nhập tên..."></div>
+        <div class="fg"><label class="fl">Địa chỉ</label><input class="fi" id="cfgAddr" type="text" placeholder="Nhập địa chỉ..."></div>
+        <div class="fg"><label class="fl">Mã số thuế</label><input class="fi" id="cfgTax" type="text" inputmode="numeric" placeholder="0123456789"></div>
+        <div class="fg"><label class="fl">Địa điểm kinh doanh</label><input class="fi" id="cfgLoc" type="text" placeholder="Địa điểm KD..."></div>
+        <button class="btn btn-n" onclick="saveCfg()">💾 Lưu thông tin</button>
+      </div>
+
+      <div class="card">
+        <div class="card-t">💡 Phương pháp tính thuế</div>
+        <div class="method-toggle">
+          <button class="method-opt" id="methodOpt1" onclick="setMethod('percentage')">📊 Theo % doanh thu</button>
+          <button class="method-opt" id="methodOpt2" onclick="setMethod('profit')">📈 Theo lợi nhuận</button>
+        </div>
+        <div id="methodDesc1" style="display:none">
+          <p style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.6">GTGT và TNCN được tính theo tỷ lệ % trên doanh thu. Đơn giản, không cần theo dõi chi phí. Dùng sổ <strong>S2a-HKD</strong>.</p>
+        </div>
+        <div id="methodDesc2" style="display:none">
+          <p style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.6">TNCN = 15% × Lợi nhuận (doanh thu – chi phí). Cần ghi chép chi phí đầy đủ. Dùng sổ <strong>S2b, S2c, S2d, S2e, S3a</strong>.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-t">⚙️ Tỷ lệ thuế GTGT &amp; TNCN</div>
+        <div class="fg">
+          <label class="fl">Loại ngành nghề</label>
+          <select class="fi" id="cfgIndustry" onchange="onIndustryChange()">
+            <option value="custom">Tự nhập tỷ lệ</option>
+            <option value="service">Dịch vụ / Xây dựng (GTGT 5%, TNCN 2%)</option>
+            <option value="trade">Thương mại (GTGT 1%, TNCN 0.5%)</option>
+            <option value="mfg">Sản xuất (GTGT 3%, TNCN 1.5%)</option>
+            <option value="transport">Vận tải (GTGT 3%, TNCN 1.5%)</option>
+          </select>
+        </div>
+        <div class="rate-grid">
+          <div class="rate-box">
+            <div class="rate-lbl">Thuế suất GTGT</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input class="fi" id="cfgGtgtRate" type="number" value="3" min="0" max="10" step="0.5" style="padding:8px;font-size:16px;font-weight:800">
+              <span style="font-size:14px;font-weight:700;color:var(--navy)">%</span>
+            </div>
+          </div>
+          <div class="rate-box" id="tncnRateBox">
+            <div class="rate-lbl">Thuế suất TNCN</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input class="fi" id="cfgTncnRate" type="number" value="1.5" min="0" max="10" step="0.5" style="padding:8px;font-size:16px;font-weight:800">
+              <span style="font-size:14px;font-weight:700;color:var(--navy)">%</span>
+            </div>
+          </div>
+        </div>
+        <div id="tncnFixed" style="display:none;background:#fef3c7;border-radius:10px;padding:10px;margin-bottom:8px;font-size:12px;color:#92400e;font-weight:600">
+          📌 Phương pháp lợi nhuận: TNCN = 15% × Lợi nhuận (cố định)
+        </div>
+        <button class="btn btn-n" onclick="saveCfg()">💾 Lưu cài đặt thuế</button>
+      </div>
+
+      <div class="card">
+        <div class="card-t">⚙️ Dữ liệu</div>
+        <div class="import-zone" onclick="importFile()">
+          📂 <strong>Nhập dữ liệu từ file JSON</strong><br>
+          <span style="font-size:11px;margin-top:4px;display:block">Chạm để chọn file sao lưu (.json)</span>
+        </div>
+        <button class="btn btn-g" onclick="exportJSON()">📤 Xuất file sao lưu (JSON)</button>
+        <button class="btn btn-danger" onclick="clearAll()">🗑️ Xóa toàn bộ dữ liệu</button>
+        <p style="font-size:11px;color:var(--sub);margin-top:10px;line-height:1.6;text-align:center">💡 Dữ liệu tự lưu vào trình duyệt.<br>Xuất JSON định kỳ để sao lưu an toàn.</p>
+      </div>
+      <div class="sp"></div>
+    </div>
+
+    <!-- TAB: ỦNG HỘ -->
+    <div class="tab" id="tab-sup">
+      <div class="sup-card">
+        <div style="font-size:15px;font-weight:800;margin-bottom:3px">🙏 Ủng hộ tác giả</div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:14px">Quét mã QR Zalo để ủng hộ</div>
+        <img class="qr-img" id="qrImg" alt="QR Zalo">
+        <div class="zalo-n">0916.352.536</div>
+        <div class="zalo-l">Zalo / Điện thoại</div>
+      </div>
+      <div class="card">
+        <div class="card-t">📝 Về ứng dụng</div>
+        <p style="font-size:13px;color:var(--sub);line-height:1.7">
+          Ứng dụng <strong style="color:var(--dark)">Sổ S2a-HKD – Nhóm 2</strong> hỗ trợ hộ kinh doanh trung bình (doanh thu 1–3 tỷ/năm) ghi chép doanh thu, chi phí và tính thuế theo quý.<br><br>
+          Có <strong style="color:var(--dark)">2 phương pháp tính thuế</strong>:<br>
+          • Phương pháp 1: GTGT &amp; TNCN theo % doanh thu<br>
+          • Phương pháp 2: TNCN = 15% × Lợi nhuận<br><br>
+          Căn cứ: <strong style="color:var(--dark)">NĐ 68/2026/NĐ-CP</strong>, <strong style="color:var(--dark)">TT 18/2026/TT-BTC</strong>, <strong style="color:var(--dark)">NĐ 141/2026/NĐ-CP</strong>, <strong style="color:var(--dark)">TT 152/2025/TT-BTC</strong>.<br><br>
+          Góp ý: Zalo <strong style="color:var(--blue)">0916.352.536</strong>
+        </p>
+      </div>
+      <div class="sp"></div>
+    </div>
+
+  </div><!-- end #scroll -->
+
+  <!-- BOTTOM NAV -->
+  <nav id="bnav">
+    <button class="ni on" data-tab="rev">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-4H9l3-3 3 3h-2v4z"/></svg>
+      Doanh thu
+    </button>
+    <button class="ni" data-tab="cost">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="4" x2="8" y2="9"/></svg>
+      Chi phí
+    </button>
+    <button class="ni" data-tab="tax">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Lịch thuế
+    </button>
+    <button class="ni" data-tab="exp">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+      Xuất
+    </button>
+    <button class="ni" data-tab="cfg">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Cài đặt
+    </button>
+    <button class="ni" data-tab="sup">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      Ủng hộ
+    </button>
+  </nav>
+
+</div><!-- end #app -->
+
+<!-- FAB -->
+<button id="fab" onclick="openAdd()">＋</button>
+
+<!-- MODAL: THÊM/SỬA GIAO DỊCH -->
+<div id="modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.48);z-index:100;align-items:flex-end;justify-content:center">
+  <div style="background:var(--white);border-radius:22px 22px 0 0;padding:20px 18px;padding-bottom:calc(env(safe-area-inset-bottom)+32px);width:100%;max-width:480px;animation:sheetUp .25s ease;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px"></div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:16px" id="mTitle">➕ Thêm doanh thu</div>
+    <div id="mTypeRow" style="display:flex;gap:8px;margin-bottom:12px">
+      <button id="mTypeRev" onclick="setModalType('rev')" style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--navy);background:var(--navy);color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer">💰 Doanh thu</button>
+      <button id="mTypeCost" onclick="setModalType('cost')" style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--border);background:var(--white);color:var(--sub);font-weight:700;font-family:inherit;font-size:13px;cursor:pointer" id="btnCostType">📋 Chi phí</button>
+    </div>
+    <div class="fg"><label class="fl">Ngày</label><input class="fi" id="eDate" type="date"></div>
+    <div class="fg"><label class="fl">Diễn giải</label><input class="fi" id="eDesc" type="text" placeholder="Mô tả giao dịch..."></div>
+    <div class="fg">
+      <label class="fl">Số tiền (VNĐ)</label>
+      <input class="fi" id="eAmt" type="number" placeholder="0" inputmode="numeric" min="0">
+      <div class="amt-preview" id="amtPrev"></div>
+    </div>
+    <button class="btn btn-n" onclick="saveEntry()">💾 Lưu</button>
+    <button class="btn btn-g" onclick="closeModal()" style="margin-top:8px">Hủy</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<style>
+@keyframes sheetUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+</style>
+
+<script>
+// ── STATE ──
+const S = {
+  cfg: {
+    name:'', addr:'', tax:'', loc:'',
+    method:'percentage',     // 'percentage' | 'profit'
+    gtgtRate:3,              // % GTGT
+    tncnRate:1.5,            // % TNCN (method 1)
+    industryType:'custom'
+  },
+  revenues: [],   // {id, date, desc, amt}
+  costs: [],      // {id, date, desc, amt}
+  period: null,   // 'YYYY-QN'
+  editId: null,
+  editType: 'rev' // 'rev' | 'cost'
+};
+let notifText = '';
+let modalType = 'rev';
+
+// ── LOCAL STORAGE ──
+const LS_KEY = 's2a_hkd_v1';
+
+function load() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(d.cfg)      S.cfg = {...S.cfg, ...d.cfg};
+    if(d.revenues) S.revenues = d.revenues;
+    if(d.costs)    S.costs = d.costs;
+    if(d.savedAt)  _showSaveStatus(d.savedAt);
+  } catch(e){ console.error('load', e); }
+}
+
+function persist() {
+  try {
+    const dot = document.getElementById('saveDot');
+    if(dot) dot.classList.add('saving');
+    const data = {cfg:S.cfg, revenues:S.revenues, costs:S.costs, savedAt:new Date().toISOString()};
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    setTimeout(()=>{
+      const d2 = document.getElementById('saveDot');
+      if(d2) d2.classList.remove('saving');
+      _showSaveStatus(data.savedAt);
+    }, 350);
+  } catch(e){ toast('⚠️ Không thể lưu!'); }
+}
+
+function _showSaveStatus(iso) {
+  try {
+    const el = document.getElementById('saveStatus');
+    if(!el) return;
+    const d = new Date(iso);
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    el.textContent = '💾 Đã lưu ' + d.getDate()+'/'+(d.getMonth()+1)+' lúc '+hh+':'+mm;
+  } catch(_){}
+}
+
+// ── QUARTER HELPERS ──
+function yq(d) {
+  const q = Math.ceil((d.getMonth()+1)/3);
+  return d.getFullYear() + '-Q' + q;
+}
+function yqLabel(p) {
+  const [y,q] = p.split('-Q');
+  return 'Quý '+q+'/'+y;
+}
+function yqFromDate(dateStr) {
+  return yq(new Date(dateStr + 'T00:00:00'));
+}
+function allPeriods() {
+  const s = new Set([yq(new Date())]);
+  S.revenues.forEach(e => s.add(yqFromDate(e.date)));
+  S.costs.forEach(e => s.add(yqFromDate(e.date)));
+  return [...s].sort().reverse();
+}
+function filteredRev(p) {
+  return S.revenues.filter(e => yqFromDate(e.date) === p)
+                   .sort((a,b)=>new Date(a.date)-new Date(b.date));
+}
+function filteredCost(p) {
+  return S.costs.filter(e => yqFromDate(e.date) === p)
+                .sort((a,b)=>new Date(a.date)-new Date(b.date));
+}
+function fmt(n){ return new Intl.NumberFormat('vi-VN').format(+n)+' ₫'; }
+function vnd(n){ return new Intl.NumberFormat('vi-VN').format(+n); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── TAX CALCULATION ──
+// Ngưỡng miễn thuế theo NĐ 141/2026: 1 tỷ/năm → 250 triệu/quý
+const THRESHOLD_QUARTER = 250_000_000;
+
+function calcTax(p) {
+  const revs = filteredRev(p);
+  const costs = filteredCost(p);
+  const revenue = revs.reduce((s,e)=>s+(+e.amt),0);
+  const cost = costs.reduce((s,e)=>s+(+e.amt),0);
+  const profit = Math.max(0, revenue - cost);
+
+  // GTGT: tính trên TOÀN BỘ doanh thu (không trừ ngưỡng)
+  const gtgt = revenue * (S.cfg.gtgtRate||3) / 100;
+
+  let tncn;
+  if(S.cfg.method === 'profit') {
+    // PP2: TNCN = 15% × Lợi nhuận
+    tncn = profit * 15 / 100;
+  } else {
+    // PP1: TNCN = (DT - 250 triệu/quý) × tỷ lệ % (chỉ tính phần vượt ngưỡng)
+    const taxableRev = Math.max(0, revenue - THRESHOLD_QUARTER);
+    tncn = taxableRev * (S.cfg.tncnRate||1.5) / 100;
+  }
+  return { revenue, cost, profit, gtgt, tncn, total: gtgt + tncn };
+}
+
+// ── NAV ──
+document.querySelectorAll('.ni').forEach(btn => {
+  btn.addEventListener('click', function(){
+    const id = this.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+    document.getElementById('tab-'+id).classList.add('on');
+    this.classList.add('on');
+    document.getElementById('scroll').scrollTop = 0;
+    // Show FAB only on rev and cost tabs
+    document.getElementById('fab').style.display = (id==='rev'||id==='cost') ? 'flex' : 'none';
+    if(id==='tax') renderTax();
+    if(id==='cost') renderCostTab();
+    if(id==='exp') fillSelects();
+  });
+});
+
+// ── MODAL ──
+document.getElementById('modal').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+document.getElementById('eAmt').addEventListener('input', function(){
+  const v = parseFloat(this.value);
+  const el = document.getElementById('amtPrev');
+  if(v>0){
+    el.textContent = '= '+fmt(v);
+    el.className = 'amt-preview' + (modalType==='cost'?' cost':'');
+  } else el.textContent='';
+});
+
+function setModalType(type) {
+  modalType = type;
+  const btnRev = document.getElementById('mTypeRev');
+  const btnCost = document.getElementById('mTypeCost');
+  if(type==='rev'){
+    btnRev.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:2px solid var(--navy);background:var(--navy);color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer';
+    btnCost.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:2px solid var(--border);background:var(--white);color:var(--sub);font-weight:700;font-family:inherit;font-size:13px;cursor:pointer';
+    document.getElementById('mTitle').textContent = (S.editId?'✏️ Sửa':'➕ Thêm')+' doanh thu';
+  } else {
+    btnCost.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:2px solid var(--orange);background:var(--orange);color:#fff;font-weight:700;font-family:inherit;font-size:13px;cursor:pointer';
+    btnRev.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:2px solid var(--border);background:var(--white);color:var(--sub);font-weight:700;font-family:inherit;font-size:13px;cursor:pointer';
+    document.getElementById('mTitle').textContent = (S.editId?'✏️ Sửa':'➕ Thêm')+' chi phí';
+  }
+  document.getElementById('amtPrev').textContent='';
+}
+
+function openAdd() {
+  S.editId = null; S.editType = 'rev';
+  // Detect current tab to set type
+  const costOn = document.querySelector('#tab-cost.on');
+  modalType = costOn ? 'cost' : 'rev';
+  setModalType(modalType);
+  document.getElementById('eDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('eDesc').value = '';
+  document.getElementById('eAmt').value = '';
+  document.getElementById('amtPrev').textContent='';
+  const m = document.getElementById('modal');
+  m.style.display = 'flex';
+  setTimeout(()=>document.getElementById('eDesc').focus(), 280);
+}
+
+function openEdit(id, type) {
+  const arr = type==='cost' ? S.costs : S.revenues;
+  const e = arr.find(x=>x.id===id);
+  if(!e) return;
+  S.editId = id; S.editType = type;
+  modalType = type;
+  setModalType(type);
+  document.getElementById('eDate').value = e.date;
+  document.getElementById('eDesc').value = e.desc;
+  document.getElementById('eAmt').value = e.amt;
+  document.getElementById('amtPrev').textContent = '= '+fmt(e.amt);
+  document.getElementById('amtPrev').className = 'amt-preview'+(type==='cost'?' cost':'');
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+function saveEntry() {
+  const date = document.getElementById('eDate').value;
+  const desc = document.getElementById('eDesc').value.trim();
+  const amt = parseFloat(document.getElementById('eAmt').value);
+  if(!date){ toast('⚠️ Vui lòng chọn ngày!'); return; }
+  if(!amt||amt<=0){ toast('⚠️ Vui lòng nhập số tiền!'); return; }
+
+  const arr = modalType==='cost' ? S.costs : S.revenues;
+  const editId = S.editId && S.editType===modalType ? S.editId : null;
+
+  if(editId) {
+    const i = arr.findIndex(x=>x.id===editId);
+    if(i!==-1) arr[i] = {...arr[i], date, desc, amt};
+  } else {
+    arr.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5), date, desc, amt});
+  }
+  persist();
+  closeModal();
+  renderAll();
+  toast(editId ? '✅ Đã cập nhật!' : '✅ Đã thêm!');
+}
+
+function delEntry(id, type) {
+  if(!confirm('Xóa giao dịch này?')) return;
+  if(type==='cost') S.costs = S.costs.filter(x=>x.id!==id);
+  else S.revenues = S.revenues.filter(x=>x.id!==id);
+  persist(); renderAll(); toast('🗑️ Đã xóa!');
+}
+
+// ── RENDER ──
+function renderAll() {
+  renderPeriods();
+  renderList();
+  renderCostTab();
+  fillSelects();
+  updateHeader();
+  updateMethodUI();
+}
+
+function renderPeriods() {
+  const periods = allPeriods();
+  ['periodStrip','costPeriodStrip'].forEach(id => {
+    const strip = document.getElementById(id);
+    strip.innerHTML='';
+    periods.forEach(p=>{
+      const b = document.createElement('button');
+      b.className='pc'+(p===S.period?' on':'');
+      b.textContent = yqLabel(p);
+      b.addEventListener('click',()=>{S.period=p; renderAll();});
+      strip.appendChild(b);
+    });
+  });
+}
+
+function renderList() {
+  const entries = filteredRev(S.period);
+  const total = entries.reduce((s,e)=>s+(+e.amt),0);
+  document.getElementById('sumTotal').textContent = fmt(total);
+  document.getElementById('sumCount').textContent = entries.length+' giao dịch';
+  document.getElementById('listBdg').textContent = entries.length;
+
+  // Tax mini
+  const t = calcTax(S.period);
+  document.getElementById('miniGtgt').textContent = fmt(t.gtgt);
+  document.getElementById('miniTncn').textContent = fmt(t.tncn);
+  document.getElementById('miniTotal').textContent = fmt(t.total);
+
+  const el = document.getElementById('entryList');
+  if(!entries.length){
+    el.innerHTML='<div class="mt"><div class="mt-i">📊</div><h3 style="font-size:16px;font-weight:700;margin-bottom:6px;color:var(--dark)">Chưa có doanh thu</h3><p style="font-size:12.5px">Nhấn <strong style="color:var(--navy)">＋</strong> để thêm mới</p></div>';
+    return;
+  }
+  el.innerHTML='';
+  entries.forEach(e=>{
+    const d = new Date(e.date+'T00:00:00');
+    const card = document.createElement('div');
+    card.className='ec';
+    card.innerHTML=
+      '<div class="db">'+String(d.getDate()).padStart(2,'0')+'<div class="dm">T'+(d.getMonth()+1)+'</div></div>'+
+      '<div class="ei"><div class="edesc">'+esc(e.desc||'(Không có diễn giải)')+'</div>'+
+      '<div class="eamt">'+fmt(e.amt)+'</div></div>'+
+      '<div class="ea"><button class="ib" data-id="'+e.id+'" data-type="rev" data-act="edit">✏️</button>'+
+      '<button class="ib" data-id="'+e.id+'" data-type="rev" data-act="del">🗑️</button></div>';
+    el.appendChild(card);
+  });
+  el.querySelectorAll('[data-act]').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const id=this.dataset.id, type=this.dataset.type;
+      if(this.dataset.act==='edit') openEdit(id,type);
+      else delEntry(id,type);
+    });
+  });
+}
+
+function renderCostTab() {
+  const isProfitMethod = S.cfg.method === 'profit';
+  document.getElementById('methodNote').style.display = isProfitMethod ? 'none' : 'block';
+  document.getElementById('costSec').style.display = isProfitMethod ? 'flex' : 'none';
+
+  const entries = filteredCost(S.period);
+  const totalCost = entries.reduce((s,e)=>s+(+e.amt),0);
+  const totalRev = filteredRev(S.period).reduce((s,e)=>s+(+e.amt),0);
+  const profit = Math.max(0, totalRev - totalCost);
+  const tncnProfit = profit * 15 / 100;
+
+  document.getElementById('costTotal').textContent = fmt(totalCost);
+  document.getElementById('costCount').textContent = entries.length+' khoản';
+  document.getElementById('miniProfit').textContent = fmt(profit);
+  document.getElementById('miniTncnProfit').textContent = fmt(tncnProfit);
+  document.getElementById('costBdg').textContent = entries.length;
+
+  const el = document.getElementById('costList');
+  if(!isProfitMethod){ el.innerHTML=''; return; }
+  if(!entries.length){
+    el.innerHTML='<div class="mt"><div class="mt-i">📋</div><h3 style="font-size:16px;font-weight:700;margin-bottom:6px;color:var(--dark)">Chưa có chi phí</h3><p style="font-size:12.5px">Nhấn <strong style="color:var(--orange)">＋</strong> để thêm chi phí</p></div>';
+    return;
+  }
+  el.innerHTML='';
+  entries.forEach(e=>{
+    const d = new Date(e.date+'T00:00:00');
+    const card = document.createElement('div');
+    card.className='ec cost-card';
+    card.innerHTML=
+      '<div class="db cost">'+String(d.getDate()).padStart(2,'0')+'<div class="dm">T'+(d.getMonth()+1)+'</div></div>'+
+      '<div class="ei"><div class="edesc">'+esc(e.desc||'(Không có diễn giải)')+'</div>'+
+      '<div class="eamt cost">−'+fmt(e.amt)+'</div></div>'+
+      '<div class="ea"><button class="ib" data-id="'+e.id+'" data-type="cost" data-act="edit">✏️</button>'+
+      '<button class="ib" data-id="'+e.id+'" data-type="cost" data-act="del">🗑️</button></div>';
+    el.appendChild(card);
+  });
+  el.querySelectorAll('[data-act]').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const id=this.dataset.id, type=this.dataset.type;
+      if(this.dataset.act==='edit') openEdit(id,type);
+      else delEntry(id,type);
+    });
+  });
+}
+
+function updateHeader() {
+  document.getElementById('hdSub').textContent = S.cfg.name||'Hộ kinh doanh – Doanh thu 1–3 tỷ/năm';
+  document.getElementById('hdKK').textContent = S.period ? yqLabel(S.period) : '—';
+  const mEl = document.getElementById('hdMethod');
+  if(S.cfg.method==='profit'){
+    mEl.textContent='📈 Lợi nhuận 15%';
+    mEl.style.display='inline-block';
+  } else {
+    mEl.textContent='📊 % Doanh thu';
+    mEl.style.display='inline-block';
+  }
+}
+
+function fillSelects() {
+  const periods = allPeriods();
+  const opts = periods.map(p=>'<option value="'+p+'">'+yqLabel(p)+'</option>').join('');
+  ['selPrint','selWord'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.innerHTML=opts; if(S.period) el.value=S.period; }
+  });
+}
+
+function updateMethodUI() {
+  const isPct = S.cfg.method==='percentage';
+  document.getElementById('methodOpt1').className='method-opt'+(isPct?' on':'');
+  document.getElementById('methodOpt2').className='method-opt'+(!isPct?' on':'');
+  document.getElementById('methodDesc1').style.display = isPct?'block':'none';
+  document.getElementById('methodDesc2').style.display = !isPct?'block':'none';
+  document.getElementById('tncnRateBox').style.display = isPct?'block':'none';
+  document.getElementById('tncnFixed').style.display = !isPct?'block':'none';
+  // Show/hide profit form item
+  const profitFm = document.getElementById('profitFmItem');
+  if(profitFm) profitFm.style.display = !isPct?'flex':'none';
+}
+
+function setMethod(m) {
+  S.cfg.method = m;
+  updateMethodUI();
+  persist();
+  renderAll();
+}
+
+function onIndustryChange() {
+  const sel = document.getElementById('cfgIndustry').value;
+  const rates = {
+    service: {gtgt:5, tncn:2},
+    trade: {gtgt:1, tncn:0.5},
+    mfg: {gtgt:3, tncn:1.5},
+    transport: {gtgt:3, tncn:1.5}
+  };
+  if(rates[sel]){
+    document.getElementById('cfgGtgtRate').value = rates[sel].gtgt;
+    document.getElementById('cfgTncnRate').value = rates[sel].tncn;
+  }
+}
+
+// ── SETTINGS ──
+function fillCfgForm() {
+  document.getElementById('cfgName').value = S.cfg.name||'';
+  document.getElementById('cfgAddr').value = S.cfg.addr||'';
+  document.getElementById('cfgTax').value  = S.cfg.tax||'';
+  document.getElementById('cfgLoc').value  = S.cfg.loc||'';
+  document.getElementById('cfgGtgtRate').value = S.cfg.gtgtRate||3;
+  document.getElementById('cfgTncnRate').value = S.cfg.tncnRate||1.5;
+  document.getElementById('cfgIndustry').value = S.cfg.industryType||'custom';
+  updateMethodUI();
+}
+
+function saveCfg() {
+  S.cfg = {
+    ...S.cfg,
+    name:    document.getElementById('cfgName').value.trim(),
+    addr:    document.getElementById('cfgAddr').value.trim(),
+    tax:     document.getElementById('cfgTax').value.trim(),
+    loc:     document.getElementById('cfgLoc').value.trim(),
+    gtgtRate: parseFloat(document.getElementById('cfgGtgtRate').value)||3,
+    tncnRate: parseFloat(document.getElementById('cfgTncnRate').value)||1.5,
+    industryType: document.getElementById('cfgIndustry').value
+  };
+  persist(); updateHeader(); renderAll(); toast('✅ Đã lưu cài đặt!');
+}
+
+function clearAll() {
+  if(!confirm('Xóa toàn bộ dữ liệu? Không thể hoàn tác!')) return;
+  S.revenues=[]; S.costs=[]; persist(); renderAll(); toast('🗑️ Đã xóa toàn bộ!');
+}
+
+function exportJSON() {
+  dl(new Blob([JSON.stringify({cfg:S.cfg,revenues:S.revenues,costs:S.costs},null,2)],{type:'application/json'}),
+    'S2a-HKD_backup_'+Date.now()+'.json');
+  toast('📤 Đã xuất file sao lưu!');
+}
+
+function importFile() {
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange = async(e)=>{
+    const file=e.target.files[0]; if(!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if(!data.revenues&&!data.costs){ toast('⚠️ File không hợp lệ!'); return; }
+      if(!confirm('Nhập dữ liệu từ "'+file.name+'"?\n(Dữ liệu hiện tại sẽ bị ghi đè)')) return;
+      if(data.cfg)      S.cfg = {...S.cfg,...data.cfg};
+      if(data.revenues) S.revenues = data.revenues;
+      if(data.costs)    S.costs = data.costs;
+      persist(); fillCfgForm(); renderAll();
+      toast('✅ Đã nhập dữ liệu!');
+    } catch(err){ toast('⚠️ Lỗi file: '+err.message); }
+  };
+  inp.click();
+}
+
+function dl(blob, name) {
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ── TAX SCHEDULE ──
+function buildTaxQuarterSel() {
+  const now = new Date();
+  const opts = [];
+  for(let i=2; i>=-5; i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i*3, 1);
+    const p = yq(d);
+    opts.push('<option value="'+p+'">'+yqLabel(p)+'</option>');
+  }
+  const sel = document.getElementById('taxQuarterSel');
+  sel.innerHTML = opts.join('');
+  sel.value = S.period || yq(new Date());
+}
+
+function renderTax() {
+  const selVal = document.getElementById('taxQuarterSel').value || S.period || yq(new Date());
+  S.period = selVal;
+
+  // Update period strips
+  document.querySelectorAll('.pc').forEach(b => {
+    b.classList.toggle('on', b.textContent === yqLabel(selVal));
+  });
+
+  document.getElementById('taxQuarterLbl').textContent = yqLabel(selVal);
+  const isPct = S.cfg.method === 'percentage';
+  document.getElementById('taxCalcSub').textContent = isPct
+    ? 'Phương pháp 1: % doanh thu (GTGT '+S.cfg.gtgtRate+'%, TNCN '+S.cfg.tncnRate+'%)'
+    : 'Phương pháp 2: GTGT '+S.cfg.gtgtRate+'% doanh thu + TNCN 15% lợi nhuận';
+  document.getElementById('taxMethodLbl').textContent =
+    'Kê khai theo quý – Hạn nộp: ngày 30 tháng kế tiếp sau mỗi quý';
+
+  const t = calcTax(selVal);
+  document.getElementById('calcRevenue').textContent = fmt(t.revenue);
+  document.getElementById('calcGtgtLbl').textContent = 'GTGT ('+S.cfg.gtgtRate+'% DT)';
+  document.getElementById('calcGtgt').textContent = fmt(t.gtgt);
+
+  if(!isPct) {
+    document.getElementById('calcCostRow').style.display='flex';
+    document.getElementById('calcProfitRow').style.display='flex';
+    document.getElementById('calcCost').textContent = fmt(t.cost);
+    document.getElementById('calcProfit').textContent = fmt(t.profit);
+    document.getElementById('calcTncnLbl').textContent = 'TNCN (15% lợi nhuận)';
+  } else {
+    document.getElementById('calcCostRow').style.display='none';
+    document.getElementById('calcProfitRow').style.display='none';
+    document.getElementById('calcTncnLbl').textContent = 'TNCN ('+S.cfg.tncnRate+'% DT vượt 250tr)';
+  }
+  document.getElementById('calcTncn').textContent = fmt(t.tncn);
+  document.getElementById('calcTotalTax').textContent = fmt(t.total);
+
+  // Tax deadlines for the selected quarter
+  const [y, qn] = selVal.split('-Q');
+  const year = parseInt(y), q = parseInt(qn);
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Deadline: day 30 of the month after the quarter ends
+  const qEndMonth = q * 3; // March=3, June=6, Sep=9, Dec=12
+  const dlDate = new Date(year, qEndMonth, 30); // month is 0-indexed so qEndMonth works
+  const daysLeft = Math.ceil((dlDate - today) / 86400000);
+
+  const type = daysLeft < 0 ? 'urgent' : daysLeft <= 10 ? 'urgent' : daysLeft <= 20 ? 'warning' : 'ok';
+  const badgeTxt = daysLeft < 0
+    ? '⚠️ Đã quá hạn '+Math.abs(daysLeft)+' ngày'
+    : daysLeft === 0 ? '🔴 HÔM NAY!'
+    : '📅 Còn '+daysLeft+' ngày';
+
+  // Year-end settlement
+  const yearDeadline = new Date(year+1, 2, 31); // March 31 next year
+  const yearDays = Math.ceil((yearDeadline - today) / 86400000);
+
+  const container = document.getElementById('taxDeadlines');
+  container.innerHTML = '';
+
+  const addCard = (dateObj, title, desc, status) => {
+    const div = document.createElement('div');
+    div.className = 'dl-card '+status;
+    div.innerHTML =
+      '<div class="dl-d '+status+'"><div class="dl-day">'+dateObj.getDate()+'</div>'+
+      '<div class="dl-mon">'+String(dateObj.getMonth()+1).padStart(2,'0')+'/'+dateObj.getFullYear()+'</div></div>'+
+      '<div class="dl-body"><h4>'+title+'</h4><p>'+desc+'</p>'+
+      '<span class="dl-bdg '+status+'">'+badgeTxt+'</span></div>';
+    // Fix badge for year-end
+    div.querySelector('.dl-bdg').textContent = yearDays < 0 && status==='info'
+      ? '⚠️ Đã quá hạn '+Math.abs(yearDays)+' ngày'
+      : yearDays===0 && status==='info' ? '🔴 HÔM NAY!'
+      : status==='info' ? '📅 Còn '+yearDays+' ngày'
+      : badgeTxt;
+    container.appendChild(div);
+  };
+
+  addCard(dlDate,
+    'Nộp tờ khai & thuế '+yqLabel(selVal),
+    'Mẫu 01/CNKD – Khai doanh thu'+(!isPct?', lợi nhuận':'')+' và nộp GTGT+TNCN. Hạn 30/'+qEndMonth+'/'+year+'. Phạt chậm nộp 0.03%/ngày.',
+    type);
+
+  if(q===4 || (q===1 && year===new Date().getFullYear())) {
+    addCard(yearDeadline,
+      'Quyết toán thuế năm '+(q===4 ? year : year-1),
+      'Nộp quyết toán TNCN cả năm trước ngày 31/3/'+(q===4?year+1:year)+'. Xác định thu nhập chịu thuế chính xác.',
+      'info');
+  }
+
+  // Update mini tax in revenue tab
+  document.getElementById('miniGtgt').textContent = fmt(t.gtgt);
+  document.getElementById('miniTncn').textContent = fmt(t.tncn);
+  document.getElementById('miniTotal').textContent = fmt(t.total);
+}
+
+// ── NOTIFICATION ──
+function genNotif() {
+  const selVal = document.getElementById('taxQuarterSel').value || S.period || yq(new Date());
+  const [y, qn] = selVal.split('-Q');
+  const year = parseInt(y), q = parseInt(qn);
+  const qEndMonth = q * 3;
+  const dlDate = new Date(year, qEndMonth, 30);
+  const today = new Date();
+  const daysLeft = Math.ceil((dlDate - today) / 86400000);
+  const t = calcTax(selVal);
+  const c = S.cfg;
+  const isPct = c.method === 'percentage';
+
+  notifText =
+    '🔔 NHẮC NỘP THUẾ '+yqLabel(selVal).toUpperCase()+'\n'+
+    '================================\n'+
+    (c.name?c.name+'\n':'')+(c.tax?'MST: '+c.tax+'\n':'')+
+    '================================\n'+
+    '📋 Hạn nộp mẫu 01/CNKD:\n'+
+    '   30/'+qEndMonth+'/'+year+
+    (daysLeft>=0?' (còn '+daysLeft+' ngày)':' (⚠️ quá hạn!)')+'\n'+
+    '================================\n'+
+    '💰 Doanh thu '+yqLabel(selVal)+': '+fmt(t.revenue)+'\n'+
+    (!isPct?'📋 Chi phí: '+fmt(t.cost)+'\n':'')+ 
+    (!isPct?'📈 Lợi nhuận: '+fmt(t.profit)+'\n':'')+
+    '📊 GTGT ('+c.gtgtRate+'% DT): '+fmt(t.gtgt)+'\n'+
+    '📊 TNCN ('+(isPct?c.tncnRate+'% DT vượt 250tr':'15% LN')+'): '+fmt(t.tncn)+'\n'+
+    '⚡ TỔNG THUẾ: '+fmt(t.total)+'\n'+
+    '================================\n'+
+    '📌 Các bước:\n'+
+    '1. Kiểm tra sổ S2a-HKD đầy đủ\n'+
+    (isPct?'':'2. Kiểm tra chi phí hợp lý\n')+
+    (isPct?'2.':'3.')+' Lập tờ khai mẫu 01/CNKD\n'+
+    (isPct?'3.':'4.')+' Nộp qua eTax Mobile hoặc CQT\n'+
+    (isPct?'4.':'5.')+' Nộp tiền thuế đúng hạn\n'+
+    '================================\n'+
+    '⚖️ Căn cứ: NĐ 68/2026/NĐ-CP, TT 18/2026/TT-BTC\n'+
+    '   NĐ 141/2026/NĐ-CP, TT 152/2025/TT-BTC\n'+
+    '   Phạt chậm nộp: 0.03%/ngày số thuế thiếu';
+
+  const box = document.getElementById('notifBox');
+  box.style.display='block'; box.textContent=notifText;
+  document.getElementById('copyBtn').style.display='block';
+  toast('✅ Đã tạo thông báo!');
+}
+
+async function copyNotif() {
+  try {
+    await navigator.clipboard.writeText(notifText);
+    toast('📋 Đã sao chép!');
+  } catch(_){
+    const ta=document.createElement('textarea'); ta.value=notifText;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('📋 Đã sao chép!');
+  }
+}
+
+// ── PRINT ──
+function doPrint() {
+  const period = document.getElementById('selPrint').value;
+  const [y, qn] = period.split('-Q');
+  const year = y, qNum = parseInt(qn);
+  const entries = filteredRev(period);
+  const total = entries.reduce((s,e)=>s+(+e.amt),0);
+  const t = calcTax(period);
+  const c = S.cfg;
+  const isPct = c.method === 'percentage';
+  const qEndMonth = qNum * 3;
+
+  let rows = entries.map(e=>{
+    const d=new Date(e.date+'T00:00:00');
+    return '<tr><td class="cc">'+d.getDate()+'/'+(d.getMonth()+1)+'</td><td>'+esc(e.desc)+'</td><td class="cr">'+vnd(e.amt)+'</td></tr>';
+  }).join('');
+  const blanks = Math.max(0, 22-entries.length);
+  rows += Array(blanks).fill('<tr><td class="cc">&nbsp;</td><td></td><td></td></tr>').join('');
+
+  const w = window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>S2a-HKD '+yqLabel(period)+'</title>'+
+    '<style>@page{size:A4;margin:15mm 20mm 15mm 25mm}'+
+    '*{margin:0;padding:0;box-sizing:border-box}body{font-family:"Times New Roman",serif;font-size:12pt}'+
+    '.hdr{display:flex;justify-content:space-between;margin-bottom:16pt}.hdr-l p{font-size:11pt;line-height:1.9}'+
+    '.hdr-r{text-align:right;font-size:10pt;line-height:1.7}.mau{color:#1e3a5f;font-weight:bold;font-size:11pt}'+
+    '.tit{text-align:center;font-size:14pt;font-weight:bold;text-transform:uppercase;margin:8pt 0 4pt}'+
+    '.sub{text-align:center;font-size:11pt;margin:2pt 0}'+
+    'table{width:100%;border-collapse:collapse;margin-top:10pt}'+
+    'th,td{border:1px solid black;padding:4pt 5pt;font-size:11pt}'+
+    'th{text-align:center;font-weight:bold}.cc{text-align:center}.cr{text-align:right}'+
+    '.tot{font-weight:bold}.tax-sum{margin-top:16pt;border:1px solid black;padding:8pt 10pt}'+
+    '.tax-sum table{margin-top:0}.tax-sum td{border:none;padding:3pt 5pt}'+
+    '.foot{text-align:right;margin-top:18pt;font-size:11pt;line-height:2}'+
+    '.nb{display:none}@media screen{.nb{display:block;text-align:center;padding:10px;background:#eff6ff;margin-bottom:14px}}'+
+    '</style></head><body>'+
+    '<div class="nb"><button onclick="window.print()" style="padding:10px 24px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer;font-weight:700">🖨️ In ngay</button>&nbsp;<button onclick="window.close()" style="padding:10px 20px;background:#6b7280;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer">✕ Đóng</button></div>'+
+    '<div class="hdr">'+
+    '<div class="hdr-l"><p><strong>HỘ/CÁ NHÂN KINH DOANH:</strong> '+(c.name||'.................................')+'</p>'+
+    '<p><strong>Địa chỉ:</strong> '+(c.addr||'................................................')+'</p>'+
+    '<p><strong>Mã số thuế:</strong> '+(c.tax||'.............................................')+'</p></div>'+
+    '<div class="hdr-r"><div class="mau">Mẫu số S2a-HKD</div>'+
+    '<div>(Theo NĐ 141/2026/NĐ-CP &amp; TT 152/2025/TT-BTC)</div>'+
+    '<div>Nhóm 2 – Doanh thu 1–3 tỷ/năm</div></div></div>'+
+    '<div class="tit">Sổ doanh thu bán hàng hóa, dịch vụ</div>'+
+    '<p class="sub">Địa điểm kinh doanh: '+(c.loc||'..................................')+'</p>'+
+    '<p class="sub"><strong>Kỳ kê khai: '+yqLabel(period)+' (Q'+qNum+'/'+year+')</strong></p>'+
+    '<table><thead><tr><th style="width:12%">Ngày tháng</th><th>Diễn giải</th><th style="width:22%">Số tiền (₫)</th></tr></thead>'+
+    '<tbody>'+rows+
+    '<tr class="tot"><td colspan="2" class="cr">Tổng cộng doanh thu</td><td class="cr">'+vnd(total)+'</td></tr></tbody></table>'+
+    '<div class="tax-sum"><strong>KẾT QUẢ TÍNH THUẾ '+yqLabel(period).toUpperCase()+':</strong>'+
+    '<table><tr><td>GTGT ('+c.gtgtRate+'% doanh thu):</td><td><strong>'+vnd(t.gtgt)+' ₫</strong></td></tr>'+
+    (isPct
+      ? '<tr><td>TNCN ('+c.tncnRate+'% DT vượt 250 triệu):</td><td><strong>'+vnd(t.tncn)+' ₫</strong></td></tr>'
+      : '<tr><td>Chi phí:</td><td>'+vnd(t.cost)+' ₫</td></tr><tr><td>Lợi nhuận:</td><td>'+vnd(t.profit)+' ₫</td></tr><tr><td>TNCN (15% lợi nhuận):</td><td><strong>'+vnd(t.tncn)+' ₫</strong></td></tr>')+
+    '<tr><td><strong>TỔNG THUẾ PHẢI NỘP:</strong></td><td><strong>'+vnd(t.total)+' ₫</strong></td></tr>'+
+    '<tr><td colspan="2" style="font-size:10pt;color:#555">Hạn nộp: 30/'+qEndMonth+'/'+year+' – Căn cứ: NĐ 68/2026/NĐ-CP, TT 18/2026/TT-BTC</td></tr></table></div>'+
+    '<div class="foot"><p>Ngày ......... tháng ......... năm .........</p>'+
+    '<p><strong>NGƯỜI ĐẠI DIỆN HỘ KINH DOANH</strong></p>'+
+    '<p><em>(Ký, ghi rõ họ tên, đóng dấu nếu có)</em></p>'+
+    '<p style="margin-top:60pt">&nbsp;</p></div></body></html>');
+  w.document.close();
+}
+
+// ── WORD ──
+function doWord() {
+  const period = document.getElementById('selWord').value;
+  const [y, qn] = period.split('-Q');
+  const qNum = parseInt(qn);
+  const entries = filteredRev(period);
+  const total = entries.reduce((s,e)=>s+(+e.amt),0);
+  const t = calcTax(period);
+  const c = S.cfg;
+  const isPct = c.method==='percentage';
+  const qEndMonth = qNum * 3;
+
+  let rows = entries.map(e=>{
+    const d=new Date(e.date+'T00:00:00');
+    return '<tr><td style="text-align:center;border:1pt solid black;padding:3pt 5pt">'+d.getDate()+'/'+(d.getMonth()+1)+'</td>'+
+      '<td style="border:1pt solid black;padding:3pt 5pt">'+esc(e.desc)+'</td>'+
+      '<td style="text-align:right;border:1pt solid black;padding:3pt 5pt">'+vnd(e.amt)+'</td></tr>';
+  }).join('');
+  const blanks = Math.max(0,22-entries.length);
+  rows += Array(blanks).fill('<tr style="height:17pt"><td style="border:1pt solid black">&nbsp;</td><td style="border:1pt solid black"></td><td style="border:1pt solid black"></td></tr>').join('');
+
+  const html = '<!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:RelyOnVML/><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]-->'+
+    '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'+
+    '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->'+
+    '<style>@page{size:21cm 29.7cm;margin:1.5cm 2cm 1.5cm 2.5cm}body{font-family:"Times New Roman",serif;font-size:12pt}p{margin:0}table{border-collapse:collapse;width:100%}</style>'+
+    '</head><body>'+
+    '<table style="width:100%;border:none;margin-bottom:12pt"><tr>'+
+    '<td style="width:55%;border:none;vertical-align:top"><p style="font-size:11pt;line-height:1.9"><b>HỘ/CÁ NHÂN KINH DOANH:</b> '+(c.name||'.........................')+'</p>'+
+    '<p style="font-size:11pt;line-height:1.9"><b>Địa chỉ:</b> '+(c.addr||'..................................')+'</p>'+
+    '<p style="font-size:11pt;line-height:1.9"><b>Mã số thuế:</b> '+(c.tax||'...................................')+'</p></td>'+
+    '<td style="width:45%;border:none;text-align:right;vertical-align:top">'+
+    '<p style="color:#1e3a5f;font-weight:bold;font-size:11pt">Mẫu số S2a-HKD</p>'+
+    '<p style="font-size:9pt;font-style:italic">(NĐ 141/2026/NĐ-CP – Nhóm 2)</p></td></tr></table>'+
+    '<p style="text-align:center;font-size:14pt;font-weight:bold;text-transform:uppercase;margin:8pt 0 4pt">Sổ doanh thu bán hàng hóa, dịch vụ</p>'+
+    '<p style="text-align:center;font-size:11pt;margin:2pt 0">Địa điểm: '+(c.loc||'....................................')+'</p>'+
+    '<p style="text-align:center;font-size:11pt;font-weight:bold;margin:2pt 0 10pt">Kỳ kê khai: '+yqLabel(period)+'</p>'+
+    '<table><thead><tr>'+
+    '<th style="width:12%;border:1pt solid black;text-align:center;padding:4pt 5pt">Ngày tháng</th>'+
+    '<th style="border:1pt solid black;text-align:center;padding:4pt 5pt">Diễn giải</th>'+
+    '<th style="width:22%;border:1pt solid black;text-align:center;padding:4pt 5pt">Số tiền (₫)</th></tr></thead>'+
+    '<tbody>'+rows+
+    '<tr><td colspan="2" style="text-align:right;font-weight:bold;border:1pt solid black;padding:4pt 5pt">Tổng cộng</td>'+
+    '<td style="text-align:right;font-weight:bold;border:1pt solid black;padding:4pt 5pt">'+vnd(total)+'</td></tr></tbody></table>'+
+    '<table style="margin-top:12pt;border:1pt solid black;width:100%"><tr>'+
+    '<td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold">GTGT ('+c.gtgtRate+'% DT):</td>'+
+    '<td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold">'+vnd(t.gtgt)+' ₫</td></tr>'+
+    (isPct
+      ? '<tr><td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold">TNCN ('+c.tncnRate+'% DT vượt 250tr):</td><td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold">'+vnd(t.tncn)+' ₫</td></tr>'
+      : '<tr><td style="border:1pt solid black;padding:4pt 8pt">Chi phí:</td><td style="border:1pt solid black;padding:4pt 8pt">'+vnd(t.cost)+' ₫</td></tr>'+
+        '<tr><td style="border:1pt solid black;padding:4pt 8pt">Lợi nhuận:</td><td style="border:1pt solid black;padding:4pt 8pt">'+vnd(t.profit)+' ₫</td></tr>'+
+        '<tr><td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold">TNCN (15% LN):</td><td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold">'+vnd(t.tncn)+' ₫</td></tr>')+
+    '<tr><td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold;font-size:13pt">TỔNG THUẾ:</td>'+
+    '<td style="border:1pt solid black;padding:4pt 8pt;font-weight:bold;font-size:13pt">'+vnd(t.total)+' ₫</td></tr>'+
+    '<tr><td colspan="2" style="border:1pt solid black;padding:4pt 8pt;font-size:9pt;color:#555">Hạn nộp: 30/'+qEndMonth+'/'+y+' – NĐ 68/2026/NĐ-CP, TT 18/2026/TT-BTC</td></tr></table>'+
+    '<p style="text-align:right;margin-top:16pt">Ngày ......... tháng ......... năm .........</p>'+
+    '<p style="text-align:right;font-weight:bold;margin-top:4pt">NGƯỜI ĐẠI DIỆN HỘ KINH DOANH</p>'+
+    '<p style="text-align:right;font-style:italic">(Ký, ghi rõ họ tên, đóng dấu nếu có)</p>'+
+    '</body></html>';
+  dl(new Blob(['\ufeff'+html],{type:'application/msword'}),
+    'S2a-HKD_'+yqLabel(period).replace('/','_')+'.doc');
+  toast('✅ Đã tải file Word!');
+}
+
+// ── TOAST ──
+let toastTm;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toastTm);
+  toastTm=setTimeout(()=>el.classList.remove('on'),2500);
+}
+
+// ── QR ──
+function loadQR() {
+  document.getElementById('qrImg').src='data:image/jpeg;base64,/9j/4QCdRXhpZgAATU0AKgAAAAgABAEAAAMAAAABApgAAAEBAAMAAAABAo4AAIdpAAQAAAABAAAAPgESAAMAAAABAAEAAAAAAAAAApKGAAIAAAAPAAAAXJIIAAQAAAABAAAAAAAAAABPcGx1c18xNjkwODI4OAAAAwEAAAMAAAABApgAAAEBAAMAAAABAo4AAAESAAMAAAABAAEAAAAAAAD/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyADIDASIAAhEBAxEB/8QAHAAAAgMBAQEBAAAAAAAAAAAABgcEBQgDAgn/xAAzEAABAwMDAgQEBQUBAAAAAAABAgMEBREABhIhMQcTIkFhFBVRcYGRobHBIzJCUsH/xAAYAQADAQEAAAAAAAAAAAAAAAABAgQAA//EAB4RAAIBBAMAAAAAAAAAAAAAAAABEQIhMRJBUf/aAAwDAQACEQMRAD8AT3Pl6W4NQhqJPHtqCNnKWF4RBbDRwT0RGABdMBO+5Q8AKgp7P+oNJ+uGsrQ9H87k+4Z0mtRjEk+xWBx1NN86HvfScgfutm/3Ws+JtCqpHuJaVtAqyMSbP2K3RLnLRVeSQhBDqFMqZfckwT1CjL1qTDQjNBzQ0xKtSBnHROnpvfwkPZrwPo4sLXSVhVSwt2IQJHB8VQQfnS6g3b2c/jFUPJ2s4L2A/YvXpN3FRHqPAKt6VLlVqBrUhDSTrHVfM1Uc3H02stGVJaQy51Hfa8RKqm3A3pYmE8KFcH01pbHj5t5S4YoRHuBPxVRzxnZ/BV+WFrS2gH6ot3ICH4WB+mwrDOlD/4HxZQNIqJHj3u3J6Y/OBP0aKjHh7sVGblPt4r1k0l0+XJrMwFNJSvFIDGFLXGZGpA5SjMqJPOFDXJ35L2a12wWYi/B3A3lbv1JJkuJqD71c3VHBWu8XKXJmVBX3U4kBKiHEvMpUWlhHQPKUAdRGa5G2I7lPDtq5FXuiN3PxZnDCT2bHw/eGgBnPQxWZstcDMcRBkXGxT5kzQ/4eadQbWXRoHuqjJfXjBQdz4UlHxUhwjjRxGSOvmwOd4i9SaqSf5mO1bMq1JqN3M9jVqHDnMpJSl2FLZX6V8QAWG0hS0H8eD86YMpNaFwvWZ0mxJD+wf1hEGEYxjbGMbvUG4xlmkVSQ0mK2lxS3FKbwOUTxqXxrZv8AGrdF7K0sXvijCRs9YpVbA7PQlGUpXgJwVFRUflJNdhbvU2ouNMtPPNlR3VBtAUHUq5OMJSNagPjTMPTTr1Vmt1DUxMbEFGCnawFJZSmRqGocFvAT+XNCF5gO6ltISpCvUOPXgmh7ND6Ts6sRTarFbfckP7QdS1gFHI91HXxwc461TW4bVZwYlkGQ8kJQXF4GVcFXbjHOOK6r2dqiJqjvCZIeJCSt1ZJ8nrxW8/GZRS+2DLs/q7aV3YzqsaVqU2pSPxHIKRjipT6cRBi2cVaqFOSopGZkAHqFi5QSQFAT+YAFJHrqHzU7UqMWN0C7kp7cbJbJSSo5M8+fSrpv6NhzXqFCpDFXjIU2sCVxuJISVAFQSMhJwfhTW6pFXuJXolMuGCZ7YHn+tOhTFbUxWz3TJgr2cRHCe8TFq9/HqUqGqcBr9BZ+JFPiTGNxqJSST3LPFZr5c/gTmPRSVQ3fLWJmPbHhj7VBbvWsyLlQaqO5v+EBOSgCQhXkJUnlTZ9SjuKaLqiUhW1xYAJOA6hXPJBSACPGkb17xUagWh/YhKqMoMtLMEuqbWlLmUlQO0kJPBFej/ALiMTJeblpWrMjMjM4HH6lRhM0mXf2JG4qS00JISdaEKCSe3g0/bNKcUqRnQWFuFXVxBIJHjmoHSBVoobU7Z2mbVFa7JDtqkp2Kia05UFNIT4hGG0oLCitXIUDxkY21RIvvdWVY11Y+m5HoUhpSbadSnlI9R/wBcjrnTCXA5uAcGJ4PJlFbqVBCOqiZOARy4ik4MYV9KqDdoV0TGmzUNs8YGVDST4UgKPBHScZz8a9CsRqSp5T11kSICVb0BT2Wkb1AJGPE11A9lK+Wp7MVrbtI7m5kq7iJQmNjFUGiSfNsIx0Ct6UAeJUegz60k8VOgSlRGFNMBSErG1K1tkgkfGpKbVG6F/6mSmm1OtBCnFOIbQQSCeVKOD0xrpiJEagvvS58+QLhKVLxUJUhSVE74Jb5BO5OeCK9U2uyktVWopqcxHbUsJLYACXDsBVyjVxxgHy4roWXDXiuX09cz/2Q==';
+}
+
+// ── INIT ──
+function init() {
+  load();
+  S.period = yq(new Date());
+  fillCfgForm();
+  buildTaxQuarterSel();
+  renderAll();
+  renderTax();
+  loadQR();
+  const el=document.getElementById('saveStatus');
+  if(el&&el.textContent==='Chưa có dữ liệu'&&S.revenues.length===0&&S.costs.length===0){
+    el.textContent='Dữ liệu tự động lưu khi bạn thêm giao dịch';
+  }
+}
+init();
+</script>
+</body>
+</html>
